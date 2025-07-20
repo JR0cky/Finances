@@ -25,16 +25,16 @@ def expenses_editor(conn):
 
         submitted = st.form_submit_button("➕ Hinzufügen")
         if submitted:
-            if description and amount > 0:
+            if amount > 0:
                 insert_expense(conn, expense_date.isoformat(), description, category, amount)
                 st.success("Ausgabe hinzugefügt.")
                 st.rerun()
             else:
-                st.warning("Bitte Beschreibung und Betrag ausfüllen.")
+                st.warning("Bitte einen Betrag hinzufügen.")
 
     # --- Display today's expenses with delete buttons ---
     st.markdown("---")
-    st.subheader("📋 Ausgaben von heute")
+    st.subheader("📋 Exraausgaben im letzten Monat")
 
     df = get_expenses(conn)
     df["date"] = pd.to_datetime(df["date"])
@@ -42,7 +42,7 @@ def expenses_editor(conn):
     df_today = df[df["date"].dt.date == today.date()]
 
     if df_today.empty:
-        st.info("Keine Ausgaben für heute erfasst.")
+        st.info("Keine Ausgaben erfasst.")
     else:
         for i, row in df_today.iterrows():
             col1, col2, col3, col4, col5 = st.columns([3, 2, 2, 3, 1])
