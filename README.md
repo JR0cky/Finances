@@ -16,11 +16,14 @@ This is a lightweight bookkeeping and finance tracking application built with [S
 
 ## 🚀 How to Run
 
+💡 Alternatively, you can simply double-click the `run_app.bat` file (on Windows) to automatically create the virtual environment, install requirements, and launch the app.
+
+
 1. **Clone the repository**
 
 ```bash
-git clone https://github.com/yourusername/bookkeeping-app.git
-cd bookkeeping-app
+git clone https://github.com/JR0cky/Finances.git
+cd Finances
 ```
 
 2. **Create a virtual environment**
@@ -58,12 +61,20 @@ streamlit run main.py
 ## 📁 File Overview
 
 ```plaintext
-bookkeeping-app/
+Finances/
 ├── main.py             # Streamlit app
+├── db.py               # handles the database
+├── db.py               # handles the database
 ├── requirements.txt    # Python dependencies
-├── transactions.csv    # Example or output data (optional)
 ├── icon.ico            # Custom icon (optional)
 └── README.md           # You're here!
+└── pages/              # Streamlit sub-pages for modular app layout
+    ├── dashboard.py    # Dashboard with main overview of finances
+    ├── charts.py       # handles charts
+    └── fixed.py        # handles fixed costs
+    └── fonds.py        # handles fonds/shares
+    └── ui.py           # handles input and appearance of the app
+    └── vary.py         # handles variable costs
 ```
 
 ---
