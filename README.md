@@ -67,10 +67,10 @@ Finances/
 ├── db.py               # handles the database
 ├── requirements.txt    # Python dependencies
 ├── icon.ico            # Custom icon (optional)
-└── README.md           # You're here!
-└── pages/              # Streamlit sub-pages for modular app layout
-    ├── dashboard.py    # Dashboard with main overview of finances
-    ├── charts.py       # handles charts
+├── README.md           # You're here!
+├── pages/              # Streamlit sub-pages for modular app layout
+    └── charts.py       # handles charts
+    └── dashboard.py    # Dashboard with main overview of finances
     └── fixed.py        # handles fixed costs
     └── fonds.py        # handles fonds/shares
     └── ui.py           # handles input and appearance of the app
