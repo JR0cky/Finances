@@ -2,6 +2,8 @@ import streamlit as st
 from pages.charts import *
 from pages.fonds import *
 
+#TODO Jahres und monatsbericht inklusive Fonds?
+
 # --- Helper functions ---
 def show_growth(df):
     if len(df) >= 2:

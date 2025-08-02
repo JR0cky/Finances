@@ -4,6 +4,8 @@ import pandas as pd
 import plotly.graph_objects as go
 from db import *
 
+#TODO darstellung mit aufsummierung von eingezahltem betrag + änderung festbetrag UND aktueller betrag in DB aufnehmen
+
 def show_growth(df):
     if len(df) >= 2:
         first = df["actual_value"].iloc[0]
@@ -46,7 +48,7 @@ def fund_analysis(conn):
         st.info("Keine Fondsdaten vorhanden.")
         return
 
-    selected_fund = st.selectbox("📌 Fonds auswählen", fund_names)
+    selected_fund = st.selectbox("📌 Fonds auswählen", fund_names, key="fond_select")
     df = get_fund_history(conn, selected_fund)
     df["last_updated"] = pd.to_datetime(df["last_updated"]).dt.date
     today = pd.Timestamp.today().date() 
@@ -168,21 +170,6 @@ def fund_tracker(conn):
                     insert_fund_entry(conn, selected_fund, new_fixed, actual_value, timestamp=custom_date)
                     st.success(f"✅ Fonds '{selected_fund}' wurde aktualisiert.")
 
-            # Einfache Verlaufsgrafik anzeigen
-            st.markdown("---")
-            st.subheader("📈 Einfacher Verlauf")
-            history_df = get_fund_history(conn, selected_fund)
-            if not history_df.empty:
-                history_df["last_updated"] = pd.to_datetime(history_df["last_updated"])
-                fig = go.Figure()
-                fig.add_trace(go.Scatter(x=history_df["last_updated"], y=history_df["actual_value"],
-                                         mode="lines+markers", name="📈 Aktueller Wert"))
-                fig.add_trace(go.Scatter(x=history_df["last_updated"], y=history_df["fixed_amount"],
-                                         mode="lines+markers", name="💶 Festbetrag"))
-                fig.update_layout(title=f"📊 Verlauf: {selected_fund}",
-                                  yaxis_title="Betrag (€)", xaxis=dict(tickformat="%b %Y"),
-                                  template="plotly_white")
-                st.plotly_chart(fig, use_container_width=True)
 
     # --- TAB 2: ANALYSE ---
     with tab2:
