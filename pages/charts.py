@@ -23,7 +23,7 @@ def financial_summary_export(df, fixed_cost_df, income_dict):
     df['month'] = df['date'].dt.month
 
     years = sorted(df['year'].unique(), reverse=True)
-    selected_year = st.selectbox("📆 Jahr auswählen", years, index=0)
+    selected_year = st.selectbox("📆 Jahr auswählen", years, index=0, key="summary_year_select")
 
     default_month = datetime.today().month
     months = sorted(df[df['year'] == selected_year]['month'].unique())
@@ -32,7 +32,7 @@ def financial_summary_export(df, fixed_cost_df, income_dict):
     else:
         default_index = 0
 
-    selected_month = st.selectbox("🗓️ Monat auswählen", months, index=default_index)
+    selected_month = st.selectbox("📅 Monat auswählen", months, index=default_index,key="summary_month_select")
 
     df_month = df[(df['year'] == selected_year) & (df['month'] == selected_month)]
     df_year = df[df['year'] == selected_year]
@@ -60,7 +60,7 @@ def financial_summary_export(df, fixed_cost_df, income_dict):
 
         all_rows = pd.concat([summary, spacer, details])
         return all_rows.to_csv(index=False).encode("utf-8")
-
+    st.markdown("<br>", unsafe_allow_html=True)
     col1, col2 = st.columns(2)
 
     with col1:
@@ -121,8 +121,6 @@ def bar_chart_grouped_by_month_category(df_year):
 
 
 def spending_charts_tabs(df_month, df_year):
-    st.subheader("📈 Auswertungen")
-
     tab1, tab2 = st.tabs(["📅 Monat", "📆 Jahr"])
 
     with tab1:

@@ -1,6 +1,7 @@
 import sqlite3
+import random
 import pandas as pd
-from datetime import date
+from datetime import date,datetime, timedelta
 
 DB_NAME = "expenses.db"
 
@@ -164,3 +165,29 @@ def get_all_fund_names(conn):
     cursor = conn.cursor()
     cursor.execute("SELECT DISTINCT name FROM fund_history")
     return [row[0] for row in cursor.fetchall()]
+
+def populate_dummy_fund_data(conn):
+    names = ["Rente", "Nachhaltigkeit", "Aktien", "ETFs"]
+
+    # Start 30 months ago from today, go up to current month (e.g., July 2025)
+    end_date = pd.Timestamp.today().replace(day=1)
+    months_back = 30
+    start_date = end_date - pd.DateOffset(months=months_back)
+
+    for name in names:
+        for i in range(months_back + 1):
+            date = (start_date + pd.DateOffset(months=i)).replace(day=1)
+            fixed = 100 + 10 * (i % 3)
+            actual = fixed + (i * 6) + (15 if name == "Nachhaltigkeit" else 0)
+            insert_fund_entry(conn, name, fixed, actual, timestamp=date)
+
+def delete_fund(conn, name):
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM fund_history WHERE name = ?", (name,))
+    cursor.execute("DELETE FROM funds WHERE name = ?", (name,))
+    conn.commit()
+
+def clear_fund_data(conn):
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM fund_history")
+    conn.commit()

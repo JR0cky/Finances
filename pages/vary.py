@@ -4,7 +4,6 @@ import pandas as pd
 from db import *
 from datetime import date
 
-#TODO Beschreibungen optional
 
 
 def expenses_editor(conn):
