@@ -4,29 +4,57 @@ import pandas as pd
 import plotly.graph_objects as go
 from db import *
 
-#TODO darstellung mit aufsummierung von eingezahltem betrag + änderung festbetrag UND aktueller betrag in DB aufnehmen
+#TODO darstellung mit aufsummierung von eingezahltem betrag 
 
 def show_growth(df):
-    if len(df) >= 2:
-        first = df["actual_value"].iloc[0]
-        last = df["actual_value"].iloc[-1]
-        percent_change = ((last - first) / first) * 100 if first > 0 else 0
-        delta = f"{percent_change:.2f}%"
-        st.metric("📈 Wachstum", f"{last:.2f} €", delta=delta)
-    else:
+    if len(df) < 2:
         st.info("Nicht genügend Daten zur Berechnung des Wachstums.")
+        return
+
+    df_sorted = df.sort_values("last_updated")
+    first = df_sorted["actual_value"].iloc[0]
+    last = df_sorted["actual_value"].iloc[-1]
+
+    if first == 0:
+        st.metric("📈 Wachstum", f"{last:.2f} €", delta="∞%" if last > 0 else "0%")
+        return
+
+    percent_change = ((last - first) / first) * 100
+    delta = f"{percent_change:.2f}%"
+    st.metric("📈 Wachstum", f"{last:.2f} €", delta=delta)
+
 
 
 def show_fund_chart(df, fund_name, key_suffix=""):
+    df = df.copy()
+    df["last_updated"] = pd.to_datetime(df["last_updated"])
+    df["cumulative_fixed"] = df["fixed_amount"].cumsum()
+
+    # 📊 Rendite berechnen (Gewinn/Verlust gegenüber Einzahlungen)
+    invested_total = df["cumulative_fixed"].iloc[-1]
+    current_value = df["actual_value"].iloc[-1]
+    profit = current_value - invested_total
+    percent_return = (profit / invested_total) * 100 if invested_total > 0 else 0
+
+    st.metric("📊 Gewinn / Verlust", f"{profit:.2f} €", delta=f"{percent_return:.2f}%")
+
+    # 📈 Diagramm anzeigen
     fig = go.Figure()
+
     fig.add_trace(go.Scatter(
-        x=df['last_updated'], y=df['actual_value'],
-        mode='lines+markers', name='📈 Aktueller Wert'
+        x=df['last_updated'],
+        y=df['actual_value'],
+        mode='lines+markers',
+        name='📈 Aktueller Wert'
     ))
+
     fig.add_trace(go.Scatter(
-        x=df['last_updated'], y=df['fixed_amount'],
-        mode='lines+markers', name='💶 Festbetrag'
+        x=df['last_updated'],
+        y=df['cumulative_fixed'],
+        mode='lines+markers',
+        name='💶 Eingezahlter Gesamtbetrag'
     ))
+
     fig.update_layout(
         title=f"Verlauf: {fund_name}",
         yaxis_title="Betrag (€)",
@@ -38,9 +66,8 @@ def show_fund_chart(df, fund_name, key_suffix=""):
     st.plotly_chart(fig, use_container_width=True, key=f"chart_{fund_name}_{key_suffix}")
 
 
-def fund_analysis(conn):
-    
 
+def fund_analysis(conn):
     st.subheader("📊 Fondsanalyse")
 
     fund_names = get_all_fund_names(conn)
@@ -96,6 +123,7 @@ def fund_analysis(conn):
                 mime="text/csv",
                 key=f"download_{selected_fund}_{key_suffix}"  # 🔑 unique key
             )
+
 def reset_button(selected):
     st.session_state["delete_confirm"] = False
     delete_fund(conn, selected)
@@ -181,9 +209,9 @@ def fund_tracker(conn):
 conn = get_connection()
 
 # Optional: Nur einmal Dummy-Daten hinzufügen (z.B. in einem Button oder Setup-Skript)
-
-# if "dummy_added" not in st.session_state:
-#     populate_dummy_fund_data(conn)
-#     st.session_state["dummy_added"] = True
+#clear_fund_data(conn)
+if "dummy_added" not in st.session_state:
+    populate_dummy_fund_data(conn)
+    st.session_state["dummy_added"] = True
 
 fund_tracker(conn)

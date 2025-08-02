@@ -1,7 +1,6 @@
 import sqlite3
-import random
 import pandas as pd
-from datetime import date,datetime, timedelta
+import numpy as np
 
 DB_NAME = "expenses.db"
 
@@ -168,18 +167,30 @@ def get_all_fund_names(conn):
 
 def populate_dummy_fund_data(conn):
     names = ["Rente", "Nachhaltigkeit", "Aktien", "ETFs"]
-
-    # Start 30 months ago from today, go up to current month (e.g., July 2025)
     end_date = pd.Timestamp.today().replace(day=1)
     months_back = 30
     start_date = end_date - pd.DateOffset(months=months_back)
 
     for name in names:
+        cumulative = 0
+        actual = 0
         for i in range(months_back + 1):
             date = (start_date + pd.DateOffset(months=i)).replace(day=1)
             fixed = 100 + 10 * (i % 3)
-            actual = fixed + (i * 6) + (15 if name == "Nachhaltigkeit" else 0)
-            insert_fund_entry(conn, name, fixed, actual, timestamp=date)
+            cumulative += fixed
+
+            # Simulate realistic monthly growth depending on fund type
+            if name == "Rente":
+                growth_factor = 1 + np.random.normal(0.002, 0.001)  # ~0.2% monthly
+            elif name == "Nachhaltigkeit":
+                growth_factor = 1 + np.random.normal(0.004, 0.003)  # ~0.4% ± more fluctuation
+            elif name == "ETFs":
+                growth_factor = 1 + np.random.normal(0.005, 0.004)  # ~0.5%
+            else:  # "Aktien"
+                growth_factor = 1 + np.random.normal(0.007, 0.01)  # more volatile
+
+            actual = max(actual * growth_factor + fixed, cumulative * 0.95)  # keep it realistic
+            insert_fund_entry(conn, name, fixed, round(actual, 2), timestamp=date)
 
 def delete_fund(conn, name):
     cursor = conn.cursor()
