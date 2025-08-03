@@ -209,9 +209,9 @@ def fund_tracker(conn):
 conn = get_connection()
 
 # Optional: Nur einmal Dummy-Daten hinzufügen (z.B. in einem Button oder Setup-Skript)
-#clear_fund_data(conn)
-if "dummy_added" not in st.session_state:
-    populate_dummy_fund_data(conn)
-    st.session_state["dummy_added"] = True
+# #clear_fund_data(conn)
+# if "dummy_added" not in st.session_state:
+#     populate_dummy_fund_data(conn)
+#     st.session_state["dummy_added"] = True
 
 fund_tracker(conn)
