@@ -1,6 +1,7 @@
 import sqlite3
 import pandas as pd
 import numpy as np
+from datetime import date
 
 DB_NAME = "expenses.db"
 
